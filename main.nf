@@ -9,13 +9,21 @@
 
 nextflow.enable.dsl=2
 
+ids = ["SRR2584863","SRR2584866"]
+reads_url = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/trimmed_fastq/"
+reads_urls = []
+
+for(id in ids) { 
+    reads_urls.add("${reads_url}/${id}_1.trim.fastq.gz") 
+    reads_urls.add("${reads_url}/${id}_2.trim.fastq.gz") 
+}
+
 // Pipeline Input parameters
 
 params.outdir = 'results'
 // TODO Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
-params.genome = null
-params.reads = null
-
+params.genome = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/ref_genome/ecoli_rel606.fasta"
+params.reads = reads_urls
 println """\
          V A R I A N T-C A L L I N G - N F   P I P E L I N E
          ===================================
