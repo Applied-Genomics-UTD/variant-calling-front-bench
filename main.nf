@@ -12,7 +12,9 @@ nextflow.enable.dsl=2
 // Pipeline Input parameters
 
 params.outdir = 'results'
+// TODO Find genome file
 params.genome = "/workspace/nextflow_tutorial/data/ref_genome/ecoli_rel606.fasta"
+// TODO Find reads files
 params.reads = "/workspace/nextflow_tutorial/data/trimmed_fastq/*_{1,2}.trim.fastq.gz"
 
 println """\
