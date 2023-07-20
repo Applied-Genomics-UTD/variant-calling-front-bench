@@ -2,8 +2,8 @@
 ========================================================================================
    Variant-Calling Nextflow Workflow
 ========================================================================================
-   Github   :
-   Contact  :
+   Github   : // TODO
+   Contact  : // TODO
 ----------------------------------------------------------------------------------------
 */
 
@@ -12,10 +12,9 @@ nextflow.enable.dsl=2
 // Pipeline Input parameters
 
 params.outdir = 'results'
-// TODO Find genome file
-params.genome = "/workspace/nextflow_tutorial/data/ref_genome/ecoli_rel606.fasta"
-// TODO Find reads files
-params.reads = "/workspace/nextflow_tutorial/data/trimmed_fastq/*_{1,2}.trim.fastq.gz"
+// TODO Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
+params.genome = null
+params.reads = null
 
 println """\
          V A R I A N T-C A L L I N G - N F   P I P E L I N E
@@ -63,6 +62,7 @@ workflow {
 process FASTQC {
     tag{"FASTQC ${reads}"}
     label 'process_low'
+    // TODO conda
 
     publishDir("${params.outdir}/fastqc_trim", mode: 'copy')
 
@@ -82,21 +82,22 @@ process FASTQC {
  * Index the reference genome for use by bwa and samtools.
  */
 process BWA_INDEX {
-  tag{"BWA_INDEX ${genome}"}
-  label 'process_low'
+    tag{"BWA_INDEX ${genome}"}
+    label 'process_low'
+    // TODO conda
 
-  publishDir("${params.outdir}/bwa_index", mode: 'copy')
+    publishDir("${params.outdir}/bwa_index", mode: 'copy')
 
-  input:
-  path genome
+    input:
+    path genome
 
-  output:
-  tuple path( genome ), path( "*" ), emit: bwa_index
+    output:
+    tuple path( genome ), path( "*" ), emit: bwa_index
 
-  script:
-  """
-  bwa index ${genome}
-  """
+    script:
+    """
+    bwa index ${genome}
+    """
 }
 
 /*
@@ -105,6 +106,7 @@ process BWA_INDEX {
 process BWA_ALIGN {
     tag{"BWA_ALIGN ${sample_id}"}
     label 'process_medium'
+    // TODO conda
 
     publishDir("${params.outdir}/bwa_align", mode: 'copy')
 
@@ -126,21 +128,22 @@ process BWA_ALIGN {
  * Convert the format of the alignment to sorted BAM.
  */
 process SAMTOOLS_SORT {
-  tag{"SAMTOOLS_SORT ${sample_id}"}
-  label 'process_low'
+    tag{"SAMTOOLS_SORT ${sample_id}"}
+    label 'process_low'
+    // TODO conda
 
-  publishDir("${params.outdir}/bam_align", mode: 'copy')
+    publishDir("${params.outdir}/bam_align", mode: 'copy')
 
-  input:
-  tuple val( sample_id ), path( bam )
+    input:
+    tuple val( sample_id ), path( bam )
 
-  output:
-  tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam" ), emit: sorted_bam
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam" ), emit: sorted_bam
 
-  script:
-  """
-  samtools sort -o "${sample_id}.aligned.sorted.bam" ${bam}
-  """
+    script:
+    """
+    samtools sort -o "${sample_id}.aligned.sorted.bam" ${bam}
+    """
 }
 
 /*
@@ -179,19 +182,19 @@ process VCFUTILS {
 
 workflow.onComplete {
 
-   println ( workflow.success ? """
-       Pipeline execution summary
-       ---------------------------
-       Completed at: ${workflow.complete}
-       Duration    : ${workflow.duration}
-       Success     : ${workflow.success}
-       workDir     : ${workflow.workDir}
-       exit status : ${workflow.exitStatus}
-       """ : """
-       Failed: ${workflow.errorReport}
-       exit status : ${workflow.exitStatus}
-       """
-   )
+    println ( workflow.success ? """
+             Pipeline execution summary
+             ---------------------------
+             Completed at: ${workflow.complete}
+             Duration    : ${workflow.duration}
+             Success     : ${workflow.success}
+             workDir     : ${workflow.workDir}
+             exit status : ${workflow.exitStatus}
+             """ : """
+             Failed: ${workflow.errorReport}
+             exit status : ${workflow.exitStatus}
+             """
+    )
 }
 
 /*
