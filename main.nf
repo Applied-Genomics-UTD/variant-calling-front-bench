@@ -20,7 +20,7 @@ params.reads = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/t
 Something like the below code will replace params.reads once we confirm working for single file
 params.reads = /scratch/applied-genomics/nextflow_varcal/data/data/trimmed_fastq/SRR*2584863{1,2}.trim.fastq.gz
 */
-*/
+
 
 println """\
          V A R I A N T-C A L L I N G - N F   P I P E L I N E
