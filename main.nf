@@ -23,17 +23,17 @@ params.reads = /scratch/applied-genomics/nextflow_varcal/data/data/trimmed_fastq
 
 
 println """\
-         V A R I A N T-C A L L I N G - N F   P I P E L I N E
-         ===================================
-         genome       : ${params.genome}
-         reads        : ${params.reads}
-         outdir       : ${params.outdir}
-         """
-         .stripIndent()
+        V A R I A N T-C A L L I N G - N F   P I P E L I N E
+        ===================================
+        genome       : ${params.genome}
+        reads        : ${params.reads}
+        outdir       : ${params.outdir}
+        """
+        .stripIndent()
 
 /*
 ========================================================================================
-   Create Channels
+Create Channels
 ========================================================================================
 */
 
@@ -42,7 +42,7 @@ reads_ch = Channel.fromFilePairs( params.reads, checkIfExists: true )
 
 /*
 ========================================================================================
-   MAIN Workflow
+MAIN Workflow
 ========================================================================================
 */
 
@@ -58,7 +58,7 @@ workflow {
 
 /*
 ========================================================================================
-   Processes
+Processes
 ========================================================================================
 */
 
@@ -182,29 +182,29 @@ process VCFUTILS {
 
 /*
 ========================================================================================
-   Workflow Event Handler
+Workflow Event Handler
 ========================================================================================
 */
 
 workflow.onComplete {
 
     println ( workflow.success ? """
-             Pipeline execution summary
-             ---------------------------
-             Completed at: ${workflow.complete}
-             Duration    : ${workflow.duration}
-             Success     : ${workflow.success}
-             workDir     : ${workflow.workDir}
-             exit status : ${workflow.exitStatus}
-             """ : """
-             Failed: ${workflow.errorReport}
-             exit status : ${workflow.exitStatus}
-             """
+            Pipeline execution summary
+            ---------------------------
+            Completed at: ${workflow.complete}
+            Duration    : ${workflow.duration}
+            Success     : ${workflow.success}
+            workDir     : ${workflow.workDir}
+            exit status : ${workflow.exitStatus}
+            """ : """
+            Failed: ${workflow.errorReport}
+            exit status : ${workflow.exitStatus}
+            """
     )
 }
 
 /*
 ========================================================================================
-   THE END
+THE END
 ========================================================================================
 */
