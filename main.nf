@@ -52,6 +52,7 @@ workflow {
     BWA_INDEX( ref_ch )
     BWA_ALIGN( BWA_INDEX.out.bwa_index.combine(reads_ch) ) // https://www.nextflow.io/docs/latest/process.html#understand-how-multiple-input-channels-work
     SAMTOOLS_SORT( BWA_ALIGN.out.aligned_bam )
+    SAMTOOLS_INDEX( SAMTOOLS_SORT.out.sorted_bam )
     // TODO Enter the rest of the processes for variant calling based on the bash script below
 
 }
@@ -156,7 +157,22 @@ process SAMTOOLS_SORT {
  * Index the BAM file for visualization purpose
  */
 process SAMTOOLS_INDEX {
-    // TODO
+    tag{"${sample_id}"}
+    label 'process_low'
+    conda 'samtools'
+
+    publishDir("${params.outdir}/bam_align", mode: 'copy')
+
+    input:
+    tuple val( sample_id ), path( bam )
+
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.bai" ), emit: sorted_bam_index
+
+    script:
+    """
+    samtools index ${bam}
+    """
 }
 
 /*
