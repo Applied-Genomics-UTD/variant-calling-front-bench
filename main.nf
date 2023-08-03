@@ -221,7 +221,7 @@ process BCFTOOLS_CALL {
 process VCFUTILS {
     tag{"VCFUTILS ${sample_id}"}
     label 'process_high'
-    conda 'vcftools'
+    conda "bioconda::bcftools=1.17"
 
     publishDir("${params.outdir}/vcfutils", mode: 'copy')
 
