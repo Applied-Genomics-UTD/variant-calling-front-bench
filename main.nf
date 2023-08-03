@@ -47,7 +47,9 @@ workflow {
     BWA_ALIGN( BWA_INDEX.out.bwa_index.combine(reads_ch) ) // https://www.nextflow.io/docs/latest/process.html#understand-how-multiple-input-channels-work
     SAMTOOLS_SORT( BWA_ALIGN.out.aligned_bam )
     SAMTOOLS_INDEX( SAMTOOLS_SORT.out.sorted_bam )
-    // TODO Enter the rest of the processes for variant calling based on the bash script below
+    BCFTOOLS_MPILEUP( SAMTOOLS_SORT.out.sorted_bam )
+    BCFTOOLS_CALL( BCFTOOLS_MPILEUP.out.bcf )
+    VCFUTILS( BCFTOOLS_CALL.out.vcf )
 
 }
 
@@ -170,24 +172,54 @@ process SAMTOOLS_INDEX {
     """
 }
 
-/*
+
  * Calculate the read coverage of positions in the genome.
 
 process BCFTOOLS_MPILEUP {
     // TODO
 }
 
-
  * Detect the single nucleotide variants (SNVs).
  
 process BCFTOOLS_CALL {
-    // TODO
+    tag{"BCFTOOLS_CALL ${sample_id}"}
+    label 'process_high'
+    conda 'bcftools'
+
+    publishDir("${params.outdir}/bcftools_call", mode: 'copy')
+
+    input:
+    tuple val( sample_id ), path( bcf )
+
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.vcf" ), emit: vcf
+
+    script:
+    """
+    bcftools call -vmO v -o ${sample_id}.aligned.sorted.bam.vcf ${bcf}
+    """
 }
 
- * Filter and report the SNVs in VCF (variant calling format).
+//* Filter and report the SNVs in VCF (variant calling format).
 
 process VCFUTILS {
-    // TODO
+    tag{"VCFUTILS ${sample_id}"}
+    label 'process_high'
+    conda 'vcftools'
+
+    publishDir("${params.outdir}/vcfutils", mode: 'copy')
+
+    input:
+    tuple val( sample_id ), path( vcf )
+
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.vcf" ), emit: vcf
+
+    script:
+    """
+    vcfutils.pl varFilter -Q 20 -d 10 -D 1000 ${vcf} > ${sample_id}.aligned.sorted.bam.vcf
+    """
+    
 }
 
 
@@ -195,7 +227,6 @@ process VCFUTILS {
 ========================================================================================
 Workflow Event Handler
 ========================================================================================
-*/
 
 workflow.onComplete {
 
