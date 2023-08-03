@@ -172,15 +172,16 @@ process SAMTOOLS_INDEX {
     """
 }
 
-
+/*
  * Calculate the read coverage of positions in the genome.
-
+*/
 process BCFTOOLS_MPILEUP {
     // TODO
 }
 
+/*
  * Detect the single nucleotide variants (SNVs).
- 
+ */
 process BCFTOOLS_CALL {
     tag{"BCFTOOLS_CALL ${sample_id}"}
     label 'process_high'
@@ -200,8 +201,9 @@ process BCFTOOLS_CALL {
     """
 }
 
-//* Filter and report the SNVs in VCF (variant calling format).
-
+/*
+* Filter and report the SNVs in VCF (variant calling format).
+*/
 process VCFUTILS {
     tag{"VCFUTILS ${sample_id}"}
     label 'process_high'
