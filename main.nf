@@ -2,8 +2,10 @@
 ========================================================================================
 Variant-Calling Nextflow Workflow
 ========================================================================================
-   Github   : // FHisam27
-   Contact  : // fatima.hisam@utdallas.edu
+
+   Github   : // FHisam27, NathanielT99
+   Contact  : // fatima.hisam@utdallas.edu, NathanielT99
+
 ----------------------------------------------------------------------------------------
 */
 
@@ -54,6 +56,7 @@ workflow {
     SAMTOOLS_SORT( BWA_ALIGN.out.aligned_bam )
     SAMTOOLS_INDEX( SAMTOOLS_SORT.out.sorted_bam )
     BCFTOOLS_MPILEUP( SAMTOOLS_SORT.out.sorted_bam )
+    BCFTOOLS_CALL( BCFTOOLS_MPILEUP.out.bcf )
     // TODO Enter the rest of the processes for variant calling based on the bash script below
 
 }
@@ -92,7 +95,7 @@ process FASTQC {
 process BWA_INDEX {
     tag{"BWA_INDEX ${genome}"}
     label 'process_low'
-    // TODO conda
+    // TODO conda do it in the script
 
     publishDir("${params.outdir}/bwa_index", mode: 'copy')
 
@@ -206,10 +209,18 @@ process BCFTOOLS_CALL {
     label 'process_high'
     conda 'bcftools'
 
+    publishDir("${params.outdir}/bcftools_call", mode: 'copy')
 
+    input:
+    tuple val( sample_id ), path( bcf )
 
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.vcf" ), emit: vcf
 
-
+    script:
+    """
+    bcftools call -vmO v -o ${sample_id}.aligned.sorted.bam.vcf ${bcf}
+    """
 }
 
 /*
