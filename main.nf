@@ -12,7 +12,7 @@ nextflow.enable.dsl=2
 // Pipeline Input parameters
 
 params.outdir = 'results'
-// TODO Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
+// Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
 params.genome = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/ref_genome/ecoli_rel606.fasta"
 params.reads = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/trimmed_fastq/SRR2584863_1.trim.fastq.gz"
 
