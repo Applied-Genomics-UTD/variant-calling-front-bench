@@ -230,6 +230,19 @@ process VCFUTILS {
     tag{"VCFUTILS ${sample_id}"}
     label 'process_high'
     conda 'vcftools'
+
+    publishDir("${params.outdir}/vcfutils", mode: 'copy')
+
+    input:
+    tuple val( sample_id ), path( vcf )
+
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.vcf" ), emit: vcf
+
+    script:
+    """
+    vcfutils.pl varFilter -Q 20 -d 10 -D 1000 ${vcf} > ${sample_id}.aligned.sorted.bam.vcf
+    """
     
 }
 
