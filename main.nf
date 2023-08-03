@@ -57,6 +57,7 @@ workflow {
     SAMTOOLS_INDEX( SAMTOOLS_SORT.out.sorted_bam )
     BCFTOOLS_MPILEUP( SAMTOOLS_SORT.out.sorted_bam )
     BCFTOOLS_CALL( BCFTOOLS_MPILEUP.out.bcf )
+    VCFUTILS( BCFTOOLS_CALL.out.vcf )
     // TODO Enter the rest of the processes for variant calling based on the bash script below
 
 }
