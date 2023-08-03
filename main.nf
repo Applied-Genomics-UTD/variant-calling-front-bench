@@ -1,9 +1,14 @@
 /*
 ========================================================================================
-   Variant-Calling Nextflow Workflow
+Variant-Calling Nextflow Workflow
 ========================================================================================
+<<<<<<< HEAD
    Github   : // ene220
    Contact  : // ene220000@utdallas.edu
+=======
+   Github   : // FHisam27
+   Contact  : // fatima.hisam@utdallas.edu
+>>>>>>> e3e98307d88b511a237342b44df62e84382fb189
 ----------------------------------------------------------------------------------------
 */
 
@@ -12,22 +17,34 @@ nextflow.enable.dsl=2
 // Pipeline Input parameters
 
 params.outdir = 'results'
+<<<<<<< HEAD
 // (Done for the first read) TODO Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
 params.genome = "/scratch/applied-genomics/nextflow_varcal/data/ref_genome/ecoli_rel606.fasta"
 params.reads = "/scratch/applied-genomics/nextflow_varcal/data/trimmed_fastq/SRR2384863_{1,2}.trim.fastq.gz"
+=======
+// Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
+params.genome = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/ref_genome/ecoli_rel606.fasta"
+params.reads = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/trimmed_fastq/SRR2584863_1.trim.fastq.gz"
+
+/* 
+Something like the below code will replace params.reads once we confirm working for single file
+params.reads = /scratch/applied-genomics/nextflow_varcal/data/data/trimmed_fastq/SRR*2584863{1,2}.trim.fastq.gz
+*/
+
+>>>>>>> e3e98307d88b511a237342b44df62e84382fb189
 
 println """\
-         V A R I A N T-C A L L I N G - N F   P I P E L I N E
-         ===================================
-         genome       : ${params.genome}
-         reads        : ${params.reads}
-         outdir       : ${params.outdir}
-         """
-         .stripIndent()
+        V A R I A N T-C A L L I N G - N F   P I P E L I N E
+        ===================================
+        genome       : ${params.genome}
+        reads        : ${params.reads}
+        outdir       : ${params.outdir}
+        """
+        .stripIndent()
 
 /*
 ========================================================================================
-   Create Channels
+Create Channels
 ========================================================================================
 */
 
@@ -36,7 +53,7 @@ reads_ch = Channel.fromFilePairs( params.reads, checkIfExists: true )
 
 /*
 ========================================================================================
-   MAIN Workflow
+MAIN Workflow
 ========================================================================================
 */
 
@@ -46,13 +63,14 @@ workflow {
     BWA_INDEX( ref_ch )
     BWA_ALIGN( BWA_INDEX.out.bwa_index.combine(reads_ch) ) // https://www.nextflow.io/docs/latest/process.html#understand-how-multiple-input-channels-work
     SAMTOOLS_SORT( BWA_ALIGN.out.aligned_bam )
+    SAMTOOLS_INDEX( SAMTOOLS_SORT.out.sorted_bam )
     // TODO Enter the rest of the processes for variant calling based on the bash script below
 
 }
 
 /*
 ========================================================================================
-   Processes
+Processes
 ========================================================================================
 */
 
@@ -151,6 +169,25 @@ process SAMTOOLS_SORT {
  * Index the BAM file for visualization purpose
  */
 process SAMTOOLS_INDEX {
+<<<<<<< HEAD
+=======
+    tag{"${sample_id}"}
+    label 'process_low'
+    conda 'samtools'
+
+    publishDir("${params.outdir}/bam_align", mode: 'copy')
+
+    input:
+    tuple val( sample_id ), path( bam )
+
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.bai" ), emit: sorted_bam_index
+
+    script:
+    """
+    samtools index ${bam}
+    """
+>>>>>>> e3e98307d88b511a237342b44df62e84382fb189
 }
 
 /*
@@ -176,29 +213,29 @@ process VCFUTILS {
 
 /*
 ========================================================================================
-   Workflow Event Handler
+Workflow Event Handler
 ========================================================================================
 */
 
 workflow.onComplete {
 
     println ( workflow.success ? """
-             Pipeline execution summary
-             ---------------------------
-             Completed at: ${workflow.complete}
-             Duration    : ${workflow.duration}
-             Success     : ${workflow.success}
-             workDir     : ${workflow.workDir}
-             exit status : ${workflow.exitStatus}
-             """ : """
-             Failed: ${workflow.errorReport}
-             exit status : ${workflow.exitStatus}
-             """
+            Pipeline execution summary
+            ---------------------------
+            Completed at: ${workflow.complete}
+            Duration    : ${workflow.duration}
+            Success     : ${workflow.success}
+            workDir     : ${workflow.workDir}
+            exit status : ${workflow.exitStatus}
+            """ : """
+            Failed: ${workflow.errorReport}
+            exit status : ${workflow.exitStatus}
+            """
     )
 }
 
 /*
 ========================================================================================
-   THE END
+THE END
 ========================================================================================
 */
