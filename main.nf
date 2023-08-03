@@ -95,7 +95,7 @@ process FASTQC {
 process BWA_INDEX {
     tag{"BWA_INDEX ${genome}"}
     label 'process_low'
-    // TODO conda
+    // TODO conda do it in the script
 
     publishDir("${params.outdir}/bwa_index", mode: 'copy')
 
