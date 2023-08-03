@@ -53,6 +53,7 @@ workflow {
     BWA_ALIGN( BWA_INDEX.out.bwa_index.combine(reads_ch) ) // https://www.nextflow.io/docs/latest/process.html#understand-how-multiple-input-channels-work
     SAMTOOLS_SORT( BWA_ALIGN.out.aligned_bam )
     SAMTOOLS_INDEX( SAMTOOLS_SORT.out.sorted_bam )
+    BCFTOOLS_MPILEUP( SAMTOOLS_SORT.out.sorted_bam )
     // TODO Enter the rest of the processes for variant calling based on the bash script below
 
 }
@@ -179,14 +180,36 @@ process SAMTOOLS_INDEX {
  * Calculate the read coverage of positions in the genome.
  */
 process BCFTOOLS_MPILEUP {
-    // TODO
+    tag{"BCFTOOLS_MPILEUP ${sample_id}"}
+    label 'process_high'
+    conda 'bcftools'
+
+    publishDir("${params.outdir}/bcftools_mpileup", mode: 'copy')
+
+    input:
+    tuple val( sample_id ), path( bam )
+
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.bcf" ), emit: bcf
+
+    script:
+    """
+    bcftools mpileup -O b -o ${sample_id}.aligned.sorted.bam.bcf ${bam}
+    """
 }
 
 /*
  * Detect the single nucleotide variants (SNVs).
  */
 process BCFTOOLS_CALL {
-    // TODO
+    tag{"BCFTOOLS_CALL ${sample_id}"}
+    label 'process_high'
+    conda 'bcftools'
+
+
+
+
+
 }
 
 /*
