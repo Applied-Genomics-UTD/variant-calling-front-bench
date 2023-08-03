@@ -1,6 +1,6 @@
 /*
 ========================================================================================
-   Variant-Calling Nextflow Workflow
+Variant-Calling Nextflow Workflow
 ========================================================================================
    Github   : // FHisam27
    Contact  : // fatima.hisam@utdallas.edu
