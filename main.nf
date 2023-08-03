@@ -2,10 +2,8 @@
 ========================================================================================
 Variant-Calling Nextflow Workflow
 ========================================================================================
-
-   Github   : // FHisam27, NathanielT99
-   Contact  : // fatima.hisam@utdallas.edu, NathanielT99
-
+   Github   : FHisam27 ene220
+   Contact  : fatima.hisam@utdallas.edu ene220000@utdallas.edu
 ----------------------------------------------------------------------------------------
 */
 
@@ -14,15 +12,9 @@ nextflow.enable.dsl=2
 // Pipeline Input parameters
 
 params.outdir = 'results'
-// Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
-params.genome = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/ref_genome/ecoli_rel606.fasta"
-params.reads = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/trimmed_fastq/SRR2584863_1.trim.fastq.gz"
-
-/* 
-Something like the below code will replace params.reads once we confirm working for single file
-params.reads = /scratch/applied-genomics/nextflow_varcal/data/data/trimmed_fastq/SRR*2584863{1,2}.trim.fastq.gz
-*/
-
+// (Done for the first read) TODO Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
+params.genome = "/scratch/applied-genomics/nextflow_varcal/data/ref_genome/ecoli_rel606.fasta"
+params.reads = "/scratch/applied-genomics/nextflow_varcal/data/trimmed_fastq/SRR2584863_{1,2}.trim.fastq.gz"
 
 println """\
         V A R I A N T-C A L L I N G - N F   P I P E L I N E
@@ -58,7 +50,6 @@ workflow {
     BCFTOOLS_MPILEUP( SAMTOOLS_SORT.out.sorted_bam )
     BCFTOOLS_CALL( BCFTOOLS_MPILEUP.out.bcf )
     VCFUTILS( BCFTOOLS_CALL.out.vcf )
-    // TODO Enter the rest of the processes for variant calling based on the bash script below
 
 }
 
@@ -74,7 +65,7 @@ Processes
 process FASTQC {
     tag{"FASTQC ${reads}"}
     label 'process_low'
-    // TODO conda
+    conda 'fastqc'
 
     publishDir("${params.outdir}/fastqc_trim", mode: 'copy')
 
@@ -96,7 +87,7 @@ process FASTQC {
 process BWA_INDEX {
     tag{"BWA_INDEX ${genome}"}
     label 'process_low'
-    // TODO conda do it in the script
+    conda 'bwa samtools'
 
     publishDir("${params.outdir}/bwa_index", mode: 'copy')
 
@@ -109,6 +100,7 @@ process BWA_INDEX {
     script:
     """
     bwa index ${genome}
+    samtools faidx ${genome}
     """
 }
 
@@ -118,7 +110,7 @@ process BWA_INDEX {
 process BWA_ALIGN {
     tag{"BWA_ALIGN ${sample_id}"}
     label 'process_medium'
-    // TODO conda
+    conda 'bwa samtools'
 
     publishDir("${params.outdir}/bwa_align", mode: 'copy')
 
@@ -142,7 +134,7 @@ process BWA_ALIGN {
 process SAMTOOLS_SORT {
     tag{"SAMTOOLS_SORT ${sample_id}"}
     label 'process_low'
-    conda 'bioconda::samtools'
+    conda 'samtools'
 
     publishDir("${params.outdir}/bam_align", mode: 'copy')
 
@@ -180,31 +172,15 @@ process SAMTOOLS_INDEX {
     """
 }
 
-/*
+
  * Calculate the read coverage of positions in the genome.
- */
+
 process BCFTOOLS_MPILEUP {
-    tag{"BCFTOOLS_MPILEUP ${sample_id}"}
-    label 'process_high'
-    conda 'bcftools'
-
-    publishDir("${params.outdir}/bcftools_mpileup", mode: 'copy')
-
-    input:
-    tuple val( sample_id ), path( bam )
-
-    output:
-    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.bcf" ), emit: bcf
-
-    script:
-    """
-    bcftools mpileup -O b -o ${sample_id}.aligned.sorted.bam.bcf ${bam}
-    """
+    // TODO
 }
 
-/*
  * Detect the single nucleotide variants (SNVs).
- */
+ 
 process BCFTOOLS_CALL {
     tag{"BCFTOOLS_CALL ${sample_id}"}
     label 'process_high'
@@ -224,9 +200,8 @@ process BCFTOOLS_CALL {
     """
 }
 
-/*
- * Filter and report the SNVs in VCF (variant calling format).
- */
+//* Filter and report the SNVs in VCF (variant calling format).
+
 process VCFUTILS {
     tag{"VCFUTILS ${sample_id}"}
     label 'process_high'
@@ -247,11 +222,11 @@ process VCFUTILS {
     
 }
 
-/*
+
+
 ========================================================================================
 Workflow Event Handler
 ========================================================================================
-*/
 
 workflow.onComplete {
 
