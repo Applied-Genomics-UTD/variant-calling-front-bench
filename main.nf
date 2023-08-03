@@ -2,8 +2,8 @@
 ========================================================================================
 Variant-Calling Nextflow Workflow
 ========================================================================================
-   Github   : FHisam27 ene220
-   Contact  : fatima.hisam@utdallas.edu ene220000@utdallas.edu
+   Github   : FHisam27, ene220, NathanielT99
+   Contact  : fatima.hisam@utdallas.edu ene220000@utdallas.edu, NathanielT99
 ----------------------------------------------------------------------------------------
 */
 
