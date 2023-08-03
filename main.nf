@@ -186,7 +186,7 @@ process BCFTOOLS_MPILEUP {
  * Detect the single nucleotide variants (SNVs).
  */
 process BCFTOOLS_CALL {
-    // TODO
+    
 }
 
 /*
