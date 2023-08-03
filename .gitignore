@@ -1,6 +1,6 @@
+*.log
 *.log.*
 work/
-*.nextflow
-*.1
 results/
-
+cache/
+*.nextflow

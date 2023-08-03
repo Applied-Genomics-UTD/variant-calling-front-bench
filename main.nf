@@ -172,9 +172,9 @@ process SAMTOOLS_INDEX {
     """
 }
 
-
+/*
  * Calculate the read coverage of positions in the genome.
-
+*/
 process BCFTOOLS_MPILEUP {
     tag{"BCFTOOLS_MPILEUP ${sample_id}"}
     label 'process_high'
@@ -194,8 +194,9 @@ process BCFTOOLS_MPILEUP {
     """
 }
 
+/*
  * Detect the single nucleotide variants (SNVs).
-
+*/
 process BCFTOOLS_CALL {
     tag{"BCFTOOLS_CALL ${sample_id}"}
     label 'process_high'
