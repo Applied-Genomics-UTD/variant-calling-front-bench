@@ -138,7 +138,7 @@ process BWA_ALIGN {
 process SAMTOOLS_SORT {
     tag{"SAMTOOLS_SORT ${sample_id}"}
     label 'process_low'
-    // TODO conda
+    conda 'bioconda::samtools'
 
     publishDir("${params.outdir}/bam_align", mode: 'copy')
 
