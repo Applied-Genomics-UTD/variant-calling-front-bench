@@ -3,12 +3,19 @@
 Variant-Calling Nextflow Workflow
 ========================================================================================
 <<<<<<< HEAD
+<<<<<<< HEAD
    Github   : // ene220
    Contact  : // ene220000@utdallas.edu
 =======
    Github   : // FHisam27
    Contact  : // fatima.hisam@utdallas.edu
 >>>>>>> e3e98307d88b511a237342b44df62e84382fb189
+=======
+
+   Github   : // FHisam27, NathanielT99
+   Contact  : // fatima.hisam@utdallas.edu, NathanielT99
+
+>>>>>>> e51e668d66dfc30620d7ee4010033e0dce802f11
 ----------------------------------------------------------------------------------------
 */
 
@@ -64,6 +71,7 @@ workflow {
     BWA_ALIGN( BWA_INDEX.out.bwa_index.combine(reads_ch) ) // https://www.nextflow.io/docs/latest/process.html#understand-how-multiple-input-channels-work
     SAMTOOLS_SORT( BWA_ALIGN.out.aligned_bam )
     SAMTOOLS_INDEX( SAMTOOLS_SORT.out.sorted_bam )
+    BCFTOOLS_MPILEUP( SAMTOOLS_SORT.out.sorted_bam )
     // TODO Enter the rest of the processes for variant calling based on the bash script below
 
 }
@@ -149,7 +157,11 @@ process BWA_ALIGN {
 process SAMTOOLS_SORT {
     tag{"SAMTOOLS_SORT ${sample_id}"}
     label 'process_low'
+<<<<<<< HEAD
     conda 'samtools'
+=======
+    conda 'bioconda::samtools'
+>>>>>>> e51e668d66dfc30620d7ee4010033e0dce802f11
 
     publishDir("${params.outdir}/bam_align", mode: 'copy')
 
@@ -194,14 +206,36 @@ process SAMTOOLS_INDEX {
  * Calculate the read coverage of positions in the genome.
  */
 process BCFTOOLS_MPILEUP {
-    // TODO
+    tag{"BCFTOOLS_MPILEUP ${sample_id}"}
+    label 'process_high'
+    conda 'bcftools'
+
+    publishDir("${params.outdir}/bcftools_mpileup", mode: 'copy')
+
+    input:
+    tuple val( sample_id ), path( bam )
+
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.bcf" ), emit: bcf
+
+    script:
+    """
+    bcftools mpileup -O b -o ${sample_id}.aligned.sorted.bam.bcf ${bam}
+    """
 }
 
 /*
  * Detect the single nucleotide variants (SNVs).
  */
 process BCFTOOLS_CALL {
-    // TODO
+    tag{"BCFTOOLS_CALL ${sample_id}"}
+    label 'process_high'
+    conda 'bcftools'
+
+
+
+
+
 }
 
 /*
