@@ -2,8 +2,8 @@
 ========================================================================================
    Variant-Calling Nextflow Workflow
 ========================================================================================
-   Github   : // TODO
-   Contact  : // TODO
+   Github   : // ene220
+   Contact  : // ene220000@utdallas.edu
 ----------------------------------------------------------------------------------------
 */
 
@@ -84,7 +84,7 @@ process FASTQC {
 process BWA_INDEX {
     tag{"BWA_INDEX ${genome}"}
     label 'process_low'
-    // TODO conda
+    conda 'bwa samtools'
 
     publishDir("${params.outdir}/bwa_index", mode: 'copy')
 
@@ -97,6 +97,7 @@ process BWA_INDEX {
     script:
     """
     bwa index ${genome}
+    samtools faidx ${genome}
     """
 }
 
@@ -106,7 +107,7 @@ process BWA_INDEX {
 process BWA_ALIGN {
     tag{"BWA_ALIGN ${sample_id}"}
     label 'process_medium'
-    // TODO conda
+    conda 'bwa samtools'
 
     publishDir("${params.outdir}/bwa_align", mode: 'copy')
 
@@ -130,7 +131,7 @@ process BWA_ALIGN {
 process SAMTOOLS_SORT {
     tag{"SAMTOOLS_SORT ${sample_id}"}
     label 'process_low'
-    // TODO conda
+    conda 'samtools'
 
     publishDir("${params.outdir}/bam_align", mode: 'copy')
 
@@ -150,7 +151,6 @@ process SAMTOOLS_SORT {
  * Index the BAM file for visualization purpose
  */
 process SAMTOOLS_INDEX {
-    // TODO
 }
 
 /*
