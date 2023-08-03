@@ -1,9 +1,11 @@
 /*
 ========================================================================================
-   Variant-Calling Nextflow Workflow
+Variant-Calling Nextflow Workflow
 ========================================================================================
-   Github   : // NathanielT99
-   Contact  : // NathanielT99
+
+   Github   : // FHisam27, NathanielT99
+   Contact  : // fatima.hisam@utdallas.edu, NathanielT99
+
 ----------------------------------------------------------------------------------------
 */
 
@@ -12,22 +14,28 @@ nextflow.enable.dsl=2
 // Pipeline Input parameters
 
 params.outdir = 'results'
-// TODO Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
-params.genome = null
-params.reads = null
+// Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
+params.genome = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/ref_genome/ecoli_rel606.fasta"
+params.reads = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/trimmed_fastq/SRR2584863_1.trim.fastq.gz"
+
+/* 
+Something like the below code will replace params.reads once we confirm working for single file
+params.reads = /scratch/applied-genomics/nextflow_varcal/data/data/trimmed_fastq/SRR*2584863{1,2}.trim.fastq.gz
+*/
+
 
 println """\
-         V A R I A N T-C A L L I N G - N F   P I P E L I N E
-         ===================================
-         genome       : ${params.genome}
-         reads        : ${params.reads}
-         outdir       : ${params.outdir}
-         """
-         .stripIndent()
+        V A R I A N T-C A L L I N G - N F   P I P E L I N E
+        ===================================
+        genome       : ${params.genome}
+        reads        : ${params.reads}
+        outdir       : ${params.outdir}
+        """
+        .stripIndent()
 
 /*
 ========================================================================================
-   Create Channels
+Create Channels
 ========================================================================================
 */
 
@@ -36,7 +44,7 @@ reads_ch = Channel.fromFilePairs( params.reads, checkIfExists: true )
 
 /*
 ========================================================================================
-   MAIN Workflow
+MAIN Workflow
 ========================================================================================
 */
 
@@ -46,13 +54,15 @@ workflow {
     BWA_INDEX( ref_ch )
     BWA_ALIGN( BWA_INDEX.out.bwa_index.combine(reads_ch) ) // https://www.nextflow.io/docs/latest/process.html#understand-how-multiple-input-channels-work
     SAMTOOLS_SORT( BWA_ALIGN.out.aligned_bam )
+    SAMTOOLS_INDEX( SAMTOOLS_SORT.out.sorted_bam )
+    BCFTOOLS_MPILEUP( SAMTOOLS_SORT.out.sorted_bam )
     // TODO Enter the rest of the processes for variant calling based on the bash script below
 
 }
 
 /*
 ========================================================================================
-   Processes
+Processes
 ========================================================================================
 */
 
@@ -130,7 +140,7 @@ process BWA_ALIGN {
 process SAMTOOLS_SORT {
     tag{"SAMTOOLS_SORT ${sample_id}"}
     label 'process_low'
-    // TODO conda
+    conda 'bioconda::samtools'
 
     publishDir("${params.outdir}/bam_align", mode: 'copy')
 
@@ -150,21 +160,58 @@ process SAMTOOLS_SORT {
  * Index the BAM file for visualization purpose
  */
 process SAMTOOLS_INDEX {
-    // TODO
+    tag{"${sample_id}"}
+    label 'process_low'
+    conda 'samtools'
+
+    publishDir("${params.outdir}/bam_align", mode: 'copy')
+
+    input:
+    tuple val( sample_id ), path( bam )
+
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.bai" ), emit: sorted_bam_index
+
+    script:
+    """
+    samtools index ${bam}
+    """
 }
 
 /*
  * Calculate the read coverage of positions in the genome.
  */
 process BCFTOOLS_MPILEUP {
-    // TODO
+    tag{"BCFTOOLS_MPILEUP ${sample_id}"}
+    label 'process_high'
+    conda 'bcftools'
+
+    publishDir("${params.outdir}/bcftools_mpileup", mode: 'copy')
+
+    input:
+    tuple val( sample_id ), path( bam )
+
+    output:
+    tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.bcf" ), emit: bcf
+
+    script:
+    """
+    bcftools mpileup -O b -o ${sample_id}.aligned.sorted.bam.bcf ${bam}
+    """
 }
 
 /*
  * Detect the single nucleotide variants (SNVs).
  */
 process BCFTOOLS_CALL {
-    // TODO
+    tag{"BCFTOOLS_CALL ${sample_id}"}
+    label 'process_high'
+    conda 'bcftools'
+
+
+
+
+
 }
 
 /*
@@ -176,29 +223,29 @@ process VCFUTILS {
 
 /*
 ========================================================================================
-   Workflow Event Handler
+Workflow Event Handler
 ========================================================================================
 */
 
 workflow.onComplete {
 
     println ( workflow.success ? """
-             Pipeline execution summary
-             ---------------------------
-             Completed at: ${workflow.complete}
-             Duration    : ${workflow.duration}
-             Success     : ${workflow.success}
-             workDir     : ${workflow.workDir}
-             exit status : ${workflow.exitStatus}
-             """ : """
-             Failed: ${workflow.errorReport}
-             exit status : ${workflow.exitStatus}
-             """
+            Pipeline execution summary
+            ---------------------------
+            Completed at: ${workflow.complete}
+            Duration    : ${workflow.duration}
+            Success     : ${workflow.success}
+            workDir     : ${workflow.workDir}
+            exit status : ${workflow.exitStatus}
+            """ : """
+            Failed: ${workflow.errorReport}
+            exit status : ${workflow.exitStatus}
+            """
     )
 }
 
 /*
 ========================================================================================
-   THE END
+THE END
 ========================================================================================
 */
