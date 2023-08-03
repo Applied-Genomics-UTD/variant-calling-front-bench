@@ -216,7 +216,10 @@ process BCFTOOLS_CALL {
  * Filter and report the SNVs in VCF (variant calling format).
  */
 process VCFUTILS {
-    // TODO
+    tag{"VCFUTILS ${sample_id}"}
+    label 'process_high'
+    conda 'vcftools'
+    
 }
 
 /*
