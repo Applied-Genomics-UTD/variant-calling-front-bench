@@ -2,8 +2,8 @@
 ========================================================================================
 Variant-Calling Nextflow Workflow
 ========================================================================================
-Github   : FHisam27, ene220, NathanielT99
-Contact  : fatima.hisam@utdallas.edu ene220000@utdallas.edu, NathanielT99
+   Github   : FHisam27, ene220, NathanielT99
+   Contact  : fatima.hisam@utdallas.edu ene220000@utdallas.edu, NathanielT99
 ----------------------------------------------------------------------------------------
 */
 
@@ -178,7 +178,7 @@ process SAMTOOLS_INDEX {
 process BCFTOOLS_MPILEUP {
     tag{"BCFTOOLS_MPILEUP ${sample_id}"}
     label 'process_high'
-    conda 'bcftools'
+    conda "bioconda::bcftools=1.17"
 
     publishDir("${params.outdir}/bcftools_mpileup", mode: 'copy')
 
@@ -200,7 +200,7 @@ process BCFTOOLS_MPILEUP {
 process BCFTOOLS_CALL {
     tag{"BCFTOOLS_CALL ${sample_id}"}
     label 'process_high'
-    conda 'bcftools'
+    conda "bioconda::bcftools=1.17"
 
     publishDir("${params.outdir}/bcftools_call", mode: 'copy')
 
