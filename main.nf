@@ -9,12 +9,21 @@ Contact  : fatima.hisam@utdallas.edu ene220000@utdallas.edu, NathanielT99
 
 nextflow.enable.dsl=2
 
+ids = ["SRR2584863","SRR2584866"]
+reads_url = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/trimmed_fastq/"
+reads_urls = []
+
+for(id in ids) {
+    reads_urls.add("${reads_url}/${id}_1.trim.fastq.gz")
+    reads_urls.add("${reads_url}/${id}_2.trim.fastq.gz")
+}
+
 // Pipeline Input parameters
 
 params.outdir = 'results'
-// (Done for the first read) TODO Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
-params.genome = "/scratch/applied-genomics/nextflow_varcal/data/ref_genome/ecoli_rel606.fasta"
-params.reads = "/scratch/applied-genomics/nextflow_varcal/data/trimmed_fastq/SRR2584863_{1,2}.trim.fastq.gz"
+// TODO Find the urls for these files https://github.com/sateeshperi/nextflow_varcal/tree/master/data
+params.genome = "https://github.com/sateeshperi/nextflow_varcal/raw/master/data/ref_genome/ecoli_rel606.fasta"
+params.reads = reads_urls
 
 println """\
         V A R I A N T-C A L L I N G - N F   P I P E L I N E
@@ -47,7 +56,7 @@ workflow {
     BWA_ALIGN( BWA_INDEX.out.bwa_index.combine(reads_ch) ) // https://www.nextflow.io/docs/latest/process.html#understand-how-multiple-input-channels-work
     SAMTOOLS_SORT( BWA_ALIGN.out.aligned_bam )
     SAMTOOLS_INDEX( SAMTOOLS_SORT.out.sorted_bam )
-    BCFTOOLS_MPILEUP( SAMTOOLS_SORT.out.sorted_bam )
+    BCFTOOLS_MPILEUP( SAMTOOLS_SORT.out.sorted_bam, ref_ch.first() )
     BCFTOOLS_CALL( BCFTOOLS_MPILEUP.out.bcf )
     VCFUTILS( BCFTOOLS_CALL.out.vcf )
 
@@ -177,20 +186,20 @@ process SAMTOOLS_INDEX {
 */
 process BCFTOOLS_MPILEUP {
     tag{"${sample_id}"}
-    label 'process_high'
     conda "bioconda::bcftools=1.17"
 
     publishDir("${params.outdir}/bcftools_mpileup", mode: 'copy')
 
     input:
     tuple val( sample_id ), path( bam )
+    path ref
 
     output:
     tuple val( sample_id ), path( "${sample_id}.aligned.sorted.bam.bcf" ), emit: bcf
 
     script:
     """
-    bcftools mpileup -O b -o ${sample_id}.aligned.sorted.bam.bcf -f ${params.genome} ${bam}
+    bcftools mpileup -O b -o ${sample_id}.aligned.sorted.bam.bcf -f ${ref} ${bam}
     """
 }
 
@@ -199,7 +208,6 @@ process BCFTOOLS_MPILEUP {
 */
 process BCFTOOLS_CALL {
     tag{"${sample_id}"}
-    label 'process_high'
     conda "bioconda::bcftools=1.17"
 
     publishDir("${params.outdir}/bcftools_call", mode: 'copy')
@@ -220,7 +228,6 @@ process BCFTOOLS_CALL {
 
 process VCFUTILS {
     tag{"VCFUTILS ${sample_id}"}
-    label 'process_high'
     conda "bioconda::bcftools=1.17"
 
     publishDir("${params.outdir}/vcfutils", mode: 'copy')
