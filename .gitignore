@@ -1,0 +1,9 @@
+*.log
+*.log.*
+work/
+results/
+cache/
+*.nextflow
+*.h
+*.c
+*.o
