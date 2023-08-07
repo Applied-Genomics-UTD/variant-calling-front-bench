@@ -2,8 +2,8 @@
 ========================================================================================
 Variant-Calling Nextflow Workflow
 ========================================================================================
-Github   : FHisam27, ene220, NathanielT99
-Contact  : fatima.hisam@utdallas.edu ene220000@utdallas.edu, NathanielT99
+   Github   : FHisam27, ene220, NathanielT99
+   Contact  : fatima.hisam@utdallas.edu ene220000@utdallas.edu, NathanielT99
 ----------------------------------------------------------------------------------------
 */
 
@@ -63,7 +63,7 @@ Processes
  * Align reads to reference genome & create BAM file.
  */
 process FASTQC {
-    tag{"FASTQC ${reads}"}
+    tag{"${reads}"}
     label 'process_low'
     conda 'fastqc'
 
@@ -85,7 +85,7 @@ process FASTQC {
  * Index the reference genome for use by bwa and samtools.
  */
 process BWA_INDEX {
-    tag{"BWA_INDEX ${genome}"}
+    tag{"${genome}"}
     label 'process_low'
     conda 'bwa samtools'
 
@@ -108,7 +108,7 @@ process BWA_INDEX {
  * Align reads to reference genome & create BAM file.
  */
 process BWA_ALIGN {
-    tag{"BWA_ALIGN ${sample_id}"}
+    tag{"${sample_id}"}
     label 'process_medium'
     conda 'bwa samtools'
 
@@ -132,7 +132,7 @@ process BWA_ALIGN {
  * Convert the format of the alignment to sorted BAM.
  */
 process SAMTOOLS_SORT {
-    tag{"SAMTOOLS_SORT ${sample_id}"}
+    tag{"${sample_id}"}
     label 'process_low'
     conda 'samtools'
 
@@ -176,9 +176,9 @@ process SAMTOOLS_INDEX {
  * Calculate the read coverage of positions in the genome.
 */
 process BCFTOOLS_MPILEUP {
-    tag{"BCFTOOLS_MPILEUP ${sample_id}"}
+    tag{"${sample_id}"}
     label 'process_high'
-    conda 'bcftools'
+    conda "bioconda::bcftools=1.17"
 
     publishDir("${params.outdir}/bcftools_mpileup", mode: 'copy')
 
@@ -198,9 +198,9 @@ process BCFTOOLS_MPILEUP {
  * Detect the single nucleotide variants (SNVs).
 */
 process BCFTOOLS_CALL {
-    tag{"BCFTOOLS_CALL ${sample_id}"}
+    tag{"${sample_id}"}
     label 'process_high'
-    conda 'bcftools'
+    conda "bioconda::bcftools=1.17"
 
     publishDir("${params.outdir}/bcftools_call", mode: 'copy')
 
